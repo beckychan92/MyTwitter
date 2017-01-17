@@ -37,26 +37,19 @@ class LoginViewController: UIViewController {
     
       print("Token Received")
       
+      // let url = URL(string: "https://api.twitter.com/oauth/authorize")
+      
+      if let url = URL(string: "https://api.twitter.com/oauth/authorize?oauth_token=\(requestToken?.token)") {
+        UIApplication.shared.openURL(url) // openURL opens up the URL in mobile browser
+      } else {
+        print ("Could not get token")
+      }
     }, failure: { (error: Error?) -> Void in
         print ("error: \(error?.localizedDescription)")
     })
   }
  
-    
   
-   /*
-    twitterClient.fetchRequestToken(withPath: "oauth/request_token", method: "GET", callbackURL: nil, scope: nil, success: { (requestToken: BDBOAuth1Credential?) -> Void in
-        print("Token received")
-    }) { (error: Error?) -> Void in
-      print("error: \(error!.localizedDescription)")
-    }
-    }
- */
- 
-  
-  
-
-    
     /*
     // MARK: - Navigation
 
