@@ -1,21 +1,33 @@
 //
-//  LoginViewController.swift
+//  TweetsViewController.swift
 //  MyTwitter
 //
-//  Created by Barbara Ristau on 1/17/17.
+//  Created by Barbara Ristau on 1/22/17.
 //  Copyright © 2017 FeiLabs. All rights reserved.
 //
 
 import UIKit
-import BDBOAuth1Manager
 
-class LoginViewController: UIViewController {
-
+class TweetsViewController: UIViewController {
   
+  var tweets: [Tweet]!
+
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        self.navigationItem.title = "TWEETS"
+      
+      TwitterClient.sharedInstance.homeTimeline(success: { (tweets: [Tweet]) -> () in
+        self.tweets = tweets
+        
+        for tweet in tweets {
+          print("tweet: \(tweet.text!)")
+          // load tableview / reload data
+        }
+      }, failure: { (error: Error) -> () in
+        print("Error: \(error.localizedDescription)")
+      })
+      
+      
     }
 
     override func didReceiveMemoryWarning() {
@@ -24,23 +36,6 @@ class LoginViewController: UIViewController {
     }
     
 
-  
-  
-  @IBAction func onLoginButton(_ sender: Any) {
-    
-    TwitterClient.sharedInstance.login(success: {
-      
-      print("I've logged in!")
-      self.performSegue(withIdentifier: "loginSegue", sender: nil)
-      
-    }) { (error: Error) in
-      print("Error: \(error.localizedDescription)")
-    }
-   
-  }
-
- 
-  
     /*
     // MARK: - Navigation
 
