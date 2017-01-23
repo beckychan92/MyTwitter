@@ -46,11 +46,20 @@ class TwitterClient: BDBOAuth1SessionManager {
     
     fetchAccessToken(withPath: "oauth/access_token", method: "POST", requestToken: requestToken, success: { (accessToken: BDBOAuth1Credential?) -> Void in
       
+      self.currentAccount(success: { (user: User) -> () in
+        User.currentUser = user
         self.loginSuccess?()
+
+      }, failure: { (error: Error) -> () in
+             self.loginFailure?(error)
+      })
+      
       
     }, failure: { (error: Error?) -> Void in
         print("error: \(error?.localizedDescription)")
         self.loginFailure?(error!)
+
+   
     } )
   
     
@@ -74,7 +83,7 @@ class TwitterClient: BDBOAuth1SessionManager {
   
   }
 
-  func currentAccount() {
+  func currentAccount(success: @escaping (User) -> (), failure: @escaping (Error) -> ()) {
     
     // getting user
     get("1.1/account/verify_credentials.json", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any) -> Void in
@@ -82,16 +91,26 @@ class TwitterClient: BDBOAuth1SessionManager {
       let userDictionary = response as? NSDictionary
       let user = User(dictionary: userDictionary!)
       
+      success(user)
+      
       print("name: \(user.name!)")
       print("screenname: \(user.screenname!)")
       print("profileurl: \(user.profileUrl!)")
       print("description: \(user.tagline!)")
       
     }, failure: { (task: URLSessionDataTask?, error: Error) -> Void in
-      
+        failure(error)
+
     })
     
     
+  }
+  
+  func logout() {
+    User.currentUser = nil
+    deauthorize()
+    
+    NotificationCenter.default.post(name: NSNotification.Name(rawValue: User.userDidLogoutNotification), object: nil)
   }
   
   

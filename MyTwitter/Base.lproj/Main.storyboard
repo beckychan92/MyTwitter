@@ -68,7 +68,13 @@
                             <constraint firstItem="r7C-Ii-FRL" firstAttribute="top" secondItem="YNq-1X-f83" secondAttribute="top" id="ces-RA-Iea"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="jfD-0b-4Em"/>
+                    <navigationItem key="navigationItem" id="jfD-0b-4Em">
+                        <barButtonItem key="leftBarButtonItem" title="Logout" id="dpg-TF-0kM">
+                            <connections>
+                                <action selector="logout:" destination="HQo-r4-0OM" id="t2t-VP-rIM"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Yds-Ym-ela" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -77,7 +83,7 @@
         <!--Navigation Controller-->
         <scene sceneID="6gb-1l-Lec">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="WkD-Hj-sEb" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="TweetsNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="WkD-Hj-sEb" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="pCL-kP-fBs">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
