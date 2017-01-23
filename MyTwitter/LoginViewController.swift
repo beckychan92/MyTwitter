@@ -31,25 +31,43 @@ class LoginViewController: UIViewController {
     let twitterClient = BDBOAuth1SessionManager(baseURL: URL(string: "https://api.twitter.com")!, consumerKey: "BjhrMfOq3vpYwqTj5F6Lc726A", consumerSecret: "CDZDMUMckjJwq5Za3C68oMnNpIeCVgucBDjulB6fDgOh2Ex9vF")!
     
     twitterClient.deauthorize()
+
+    twitterClient.fetchRequestToken(withPath: "oauth/request_token", method: "GET", callbackURL: nil, scope: nil, success: ( { (requestToken:BDBOAuth1Credential?) -> Void in
+    
+      print("getting request token")
+      
+      if let authURL = URL(string: "https://api.twitter.com/oauth/authorize?oauth_token=\(requestToken!.token!)") {
+
+        print("token is valid")
+        UIApplication.shared.open(authURL, options: [:], completionHandler: nil)
+      
+      } else { print("invalid token") }
+      
+      
+    }), failure: { (error: Error?) -> Void in
+      print("error: \(error?.localizedDescription)")
+    })
+    
+    
+   // twitterClient.fetchRequestToken(withPath: "oauth/request_token", method: "GET", callbackURL: nil, scope: nil, success: ( { (requestToken:BDBOAuth1Credential) -> Void in
+      
   
-    
-    twitterClient.fetchRequestToken(withPath: "oauth/request_token", method: "GET", callbackURL: nil, scope: nil, success: { (requestToken: BDBOAuth1Credential?) -> Void in
-    
-      print("Token Received")
       
-      // let url = URL(string: "https://api.twitter.com/oauth/authorize")
-      
-      if let url = URL(string: "https://api.twitter.com/oauth/authorize?oauth_token=\(requestToken?.token)") {
-        UIApplication.shared.openURL(url) // openURL opens up the URL in mobile browser
+   /*   if let authURL = URL(string: "https://api.twitter.com/oauth/authorize?oauth_token=\(requestToken!.token)") {
+
+        UIApplication.shared.open(authURL, options: [:], completionHandler: nil)
+        print("Token Received")
+     
       } else {
         print ("Could not get token")
       }
-    }, failure: { (error: Error?) -> Void in
+    }), failure: { (error: Error?) -> Void in
         print ("error: \(error?.localizedDescription)")
     })
   }
+    */
  
-  
+  }
     /*
     // MARK: - Navigation
 
