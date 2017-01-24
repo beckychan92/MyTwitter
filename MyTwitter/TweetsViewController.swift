@@ -8,28 +8,52 @@
 
 import UIKit
 
-class TweetsViewController: UIViewController {
+class TweetsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
   
-  var tweets: [Tweet]!
+  var tweets: [Tweet]?
 
+  @IBOutlet weak var tableView: UITableView!
+
+  
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.title = "TWEETS"
       
-      TwitterClient.sharedInstance.homeTimeline(success: { (tweets: [Tweet]) -> () in
-        self.tweets = tweets
+        tableView.dataSource = self
+        tableView.delegate = self
+    
+        TwitterClient.sharedInstance.homeTimeline(success: { (tweets: [Tweet]) -> () in
+          self.tweets = tweets
         
-        for tweet in tweets {
-          print("tweet: \(tweet.text!)")
-          // load tableview / reload data
+          for tweet in tweets {
+            print("tweet: \(tweet.text!)")
+            self.tableView.reloadData()
+            }
+          }, failure: { (error: Error) -> () in
+          print("Error: \(error.localizedDescription)")
+          })
         }
-      }, failure: { (error: Error) -> () in
-        print("Error: \(error.localizedDescription)")
-      })
-      
-      
-    }
 
+  // MARK: - TableView Methods
+  
+  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+   
+    return tweets?.count ?? 0
+  }
+  
+  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    
+    let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell", for: indexPath) as! TweetCell
+
+    
+    if let tweet = tweets?[indexPath.row] {
+      cell.tweet = tweet
+    }
+    
+    return cell
+  }
+  
+  
 
   
   @IBAction func logout(_ sender: UIBarButtonItem) {
