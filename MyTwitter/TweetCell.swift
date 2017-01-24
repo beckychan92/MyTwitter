@@ -33,7 +33,7 @@ class TweetCell: UITableViewCell {
       favCountLabel.text = String(describing: tweet.favoritesCount!)
       
       nameLabel.text = tweet.user?.name!
-      screenNameLabel.text = tweet.user?.screenname!
+      screenNameLabel.text = ("@" + (tweet.user?.screenname!)!)
       
       if let profileUrl = tweet.user?.profileUrl {
         profileImage.setImageWith(profileUrl)
