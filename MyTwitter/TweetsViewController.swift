@@ -8,9 +8,11 @@
 
 import UIKit
 
+
 class TweetsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
   
   var tweets: [Tweet]?
+  let HeaderViewIdentifier = "TableViewHeaderView"
 
   @IBOutlet weak var tableView: UITableView!
 
@@ -19,9 +21,15 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
         super.viewDidLoad()
         self.navigationItem.title = "TWEETS"
       
+        // Setting up tableview
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.estimatedRowHeight = 220
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: HeaderViewIdentifier)
     
+      
+        // Getting the tweets via the API
         TwitterClient.sharedInstance.homeTimeline(success: { (tweets: [Tweet]) -> () in
           self.tweets = tweets
         
@@ -36,9 +44,13 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
 
   // MARK: - TableView Methods
   
+  func numberOfSections(in tableView: UITableView) -> Int {
+    return tweets?.count ?? 0
+  }
+  
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
    
-    return tweets?.count ?? 0
+    return 1
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -52,6 +64,39 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
     
     return cell
   }
+  
+  func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    let headerView = UIView(frame: CGRect(x:0, y:0, width: 320, height: 50))
+    headerView.backgroundColor = UIColor.blue
+    
+    let label = UILabel(frame: CGRect(x:0, y:0, width: 150, height: 15))
+    label.center = CGPoint(x: 100, y: 5)
+    label.textAlignment = .center
+    label.adjustsFontSizeToFitWidth = true
+    label.adjustsFontForContentSizeCategory = true
+    label.textColor = UIColor.lightGray
+    
+    let tweet = tweets?[section]
+    
+    if let date = tweet?.timestamp {
+      label.text = String(describing: date)
+      print("Date: \(date)")
+    }
+    
+    headerView.addSubview(label)
+    
+    
+    return headerView
+  }
+  
+  func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+ 
+    var height = tableView.sectionHeaderHeight
+    height = 18
+    
+    return height
+  }
+  
   
   
 

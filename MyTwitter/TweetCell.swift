@@ -7,12 +7,13 @@
 //
 
 import UIKit
+import AFNetworking
 
 class TweetCell: UITableViewCell {
   
 
   @IBOutlet weak var tweetTextLabel: UILabel!
-  @IBOutlet weak var timeStampLabel: UILabel!
+  //@IBOutlet weak var timeStampLabel: UILabel!
   @IBOutlet weak var retweetCountLabel: UILabel!
   @IBOutlet weak var favCountLabel: UILabel!
   
@@ -27,13 +28,16 @@ class TweetCell: UITableViewCell {
     didSet {
       
       tweetTextLabel.text = tweet.text
-      timeStampLabel.text = String(describing: tweet.timestamp!)
+      //timeStampLabel.text = String(describing: tweet.timestamp!)
       retweetCountLabel.text = String(describing: tweet.retweetCount!)
       favCountLabel.text = String(describing: tweet.favoritesCount!)
       
       nameLabel.text = tweet.user?.name!
       screenNameLabel.text = tweet.user?.screenname!
       
+      if let profileUrl = tweet.user?.profileUrl {
+        profileImage.setImageWith(profileUrl)
+      }
       
       
     
@@ -45,7 +49,10 @@ class TweetCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+      
+      profileImage.layer.cornerRadius = 3
+      profileImage.clipsToBounds = true 
+      
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
