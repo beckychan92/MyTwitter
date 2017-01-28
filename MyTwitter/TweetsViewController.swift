@@ -28,18 +28,9 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: HeaderViewIdentifier)
     
+        makeNetworkCall()
+ 
       
-        // Getting the tweets via the API
-        TwitterClient.sharedInstance.homeTimeline(success: { (tweets: [Tweet]) -> () in
-          self.tweets = tweets
-        
-          for tweet in tweets {
-            print("tweet: \(tweet.text!)")
-            self.tableView.reloadData()
-            }
-          }, failure: { (error: Error) -> () in
-          print("Error: \(error.localizedDescription)")
-          })
         }
 
   // MARK: - TableView Methods
@@ -58,7 +49,7 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
     let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell", for: indexPath) as! TweetCell
 
     
-    if let tweet = tweets?[indexPath.row] {
+    if let tweet = tweets?[indexPath.section] {
       cell.tweet = tweet
     }
     
@@ -98,14 +89,33 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
   }
   
   
-  
-
-  
   @IBAction func logout(_ sender: UIBarButtonItem) {
       TwitterClient.sharedInstance.logout()
   }
   
-
+  // MARK: - Network Call
+  
+  func makeNetworkCall() {
+    
+    // Getting the tweets via the API
+    TwitterClient.sharedInstance.homeTimeline(success: { (tweets: [Tweet]) -> () in
+      self.tweets = tweets
+      
+      for tweet in tweets {
+        print("tweet: \(tweet.text!)")
+        self.tableView.reloadData()
+      }
+      
+    }, failure: { (error: Error) -> () in
+      print("Error: \(error.localizedDescription)")
+    })
+    
+    
+  }
+  
+  
+  
+  
     /*
     // MARK: - Navigation
 

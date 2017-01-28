@@ -79,9 +79,12 @@ class TwitterClient: BDBOAuth1SessionManager {
     }, failure: { (task: URLSessionDataTask?, error: Error) -> Void in
        failure("error: \(error.localizedDescription)" as! Error)
     })
-    
-  
   }
+  
+  
+  
+  
+  
 
   func currentAccount(success: @escaping (User) -> (), failure: @escaping (Error) -> ()) {
     
@@ -102,9 +105,44 @@ class TwitterClient: BDBOAuth1SessionManager {
         failure(error)
 
     })
-    
-    
   }
+  
+  // save to favorites
+  func createFav(params: NSDictionary?, success: @escaping (_ tweet: Tweet?) -> (), failure: @escaping (Error) -> ()) {
+    
+    // getting the tweets
+    post("1.1/favorites/create.json", parameters: params, progress: nil, success: { (task:  URLSessionDataTask, response: Any) -> Void in
+      
+      let tweet = Tweet.tweetAsDictionary(response as! NSDictionary)
+      
+      print("Favorite Count: \(tweet.favoritesCount!)")
+     
+      success(tweet)
+      
+    }, failure: { (task: URLSessionDataTask?, error: Error) -> Void in
+       failure(error)
+    })
+  }
+
+
+  
+  func retweet(params: NSDictionary?, success: @escaping (_ tweet: Tweet?) -> (), failure: @escaping (Error) -> ()) {
+    
+    // getting the tweets
+    post("1.1/statuses/retweet/\(params!["id"]!).json", parameters: params, progress: nil, success: { (task:  URLSessionDataTask, response: Any) -> Void in
+      
+      let tweet = Tweet.tweetAsDictionary(response as! NSDictionary)
+      
+      print("Retweet Count: \(tweet.retweetCount!)")
+      
+      success(tweet)
+    
+    }, failure: { (task: URLSessionDataTask?, error: Error) -> Void in
+        failure(error)
+    })
+  }
+
+ 
   
   func logout() {
     User.currentUser = nil
