@@ -107,6 +107,8 @@ class TwitterClient: BDBOAuth1SessionManager {
     })
   }
   
+  // MARK: - SAVE AND UNSAVE AS FAVORITE
+  
   // save to favorites
   func createFav(params: NSDictionary?, success: @escaping (_ tweet: Tweet?) -> (), failure: @escaping (Error) -> ()) {
     
@@ -123,8 +125,27 @@ class TwitterClient: BDBOAuth1SessionManager {
        failure(error)
     })
   }
+  
 
-
+  // save to favorites
+  func unSaveAsFavorite(params: NSDictionary?, success: @escaping (_ tweet: Tweet?) -> (), failure: @escaping (Error) -> ()) {
+    
+    // getting the tweets
+    post("1.1/favorites/destroy.json", parameters: params, progress: nil, success: { (task:  URLSessionDataTask, response: Any) -> Void in
+      
+      let tweet = Tweet.tweetAsDictionary(response as! NSDictionary)
+      
+      print("Favorite Count: \(tweet.favoritesCount!)")
+      
+      success(tweet)
+      
+    }, failure: { (task: URLSessionDataTask?, error: Error) -> Void in
+      failure(error)
+    })
+  }
+  
+  
+  // MARK: - RETWEET AND UNRETWEET
   
   func retweet(params: NSDictionary?, success: @escaping (_ tweet: Tweet?) -> (), failure: @escaping (Error) -> ()) {
     
@@ -142,7 +163,29 @@ class TwitterClient: BDBOAuth1SessionManager {
     })
   }
 
- 
+  // https://api.twitter.com/1.1/statuses/unretweet/:id.json
+  
+  
+  func unRetweet(params: NSDictionary?, success: @escaping (_ tweet: Tweet?) -> (), failure: @escaping (Error) -> ()) {
+    
+    // getting the tweets
+    post("1.1/statuses/unretweet/\(params!["id"]!).json", parameters: params, progress: nil, success: { (task:  URLSessionDataTask, response: Any) -> Void in
+      
+      let tweet = Tweet.tweetAsDictionary(response as! NSDictionary)
+      
+      print("Retweet Count: \(tweet.retweetCount!)")
+      
+      success(tweet)
+      
+    }, failure: { (task: URLSessionDataTask?, error: Error) -> Void in
+      failure(error)
+    })
+  }
+
+  
+  
+  
+  // MARK: - LOGOUT
   
   func logout() {
     User.currentUser = nil

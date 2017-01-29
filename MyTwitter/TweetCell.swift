@@ -23,6 +23,9 @@ class TweetCell: UITableViewCell {
   @IBOutlet weak var profileImage: UIImageView!
   
   var tweetID: NSNumber?
+  var originalTweetID: NSNumber?
+  var favStatus: Bool?
+  var retweetStatus: Bool?
   
   var tweet: Tweet! {
     
@@ -33,9 +36,18 @@ class TweetCell: UITableViewCell {
       retweetCountLabel.text = String(describing: tweet.retweetCount!)
       favCountLabel.text = String(describing: tweet.favoritesCount!)
       
-      tweetID = tweet.id! 
+      tweetID = tweet.id!
+      if tweet.idStr != 0 {
+        originalTweetID = tweet.idStr
+        print("original tweet is : \(originalTweetID)")
+      }
+      
       nameLabel.text = tweet.user?.name!
       screenNameLabel.text = ("@" + (tweet.user?.screenname!)!)
+      
+      favStatus = tweet.favorited!
+      retweetStatus = tweet.retweeted!
+      self.loadStatusLayout()
       
       if let profileUrl = tweet.user?.profileUrl {
         profileImage.setImageWith(profileUrl)
@@ -59,40 +71,134 @@ class TweetCell: UITableViewCell {
     }
   
   
-  @IBAction func createFavorite(_ sender: Any) {
+  // MARK: - SAVING & UNSAVING AS FAVORITE
+  
+  @IBAction func onSave(_ sender: UIButton) {
     
-    print("Clicked on Create Favorite")
+    if favStatus! {
+      unSaveAsFavorite()
+    }
+    
+    else {
+     saveAsFavorite()
+    }
+    
+  }
+
+  
+  func saveAsFavorite(){
     
     TwitterClient.sharedInstance.createFav(params: ["id": tweetID!], success: { (tweet) -> () in
       
-        print("Saving to favorite")
-        self.favCountLabel.text = String(describing: tweet!.favoritesCount!)
-        self.favCountLabel.textColor = UIColor.green
-
+      print("Saving to favorite")
+      self.favCountLabel.text = String(describing: tweet!.favoritesCount!)
+      self.favStatus = true
+      self.loadFavoriteLayout()
+      print("New Status: \(tweet!.favorited!)")
+      
     }, failure: { (error: Error) -> () in
       print("Error: \(error.localizedDescription)")
     })
     
-    }
+    
+  }
+  
+  func unSaveAsFavorite() {
+    
+    TwitterClient.sharedInstance.unSaveAsFavorite(params: ["id": tweetID!], success: { (tweet) -> () in
+      
+      print("Removing from favorites")
+      self.favCountLabel.text = String(describing: tweet!.favoritesCount!)
+      self.favStatus = false
+      self.loadFavoriteLayout()
+      print("Status: \(tweet!.favorited!)")
+      
+    }, failure: { (error: Error) -> () in
+      print("Error: \(error.localizedDescription)")
+    })
+  }
+  
+     // MARK: - RETWEETING & UNRETWEETING
   
   
   @IBAction func onRetweet(_ sender: Any) {
     
     print("Clicked on Retweet")
     
-    TwitterClient.sharedInstance.retweet(params: ["id": tweetID!], success: { (tweet) -> () in
+    if retweetStatus! {
+      unRetweet()
+    }
+      
+    else {
+      doRetweet()
+    }
     
+  }
+  
+  func doRetweet() {
+    
+    TwitterClient.sharedInstance.retweet(params: ["id": originalTweetID!], success: { (tweet) -> () in
+      
       print("Retweeting the Tweet")
       self.retweetCountLabel.text = String(describing: tweet!.retweetCount!)
-      self.retweetCountLabel.textColor = UIColor.green
-      
-      
+      self.retweetStatus = true
+      self.loadRetweetLayout()
+
     } , failure: { (error: Error) -> () in
       print("Error: \(error.localizedDescription)")
     })
     
   }
   
+  func unRetweet() {
+    
+    TwitterClient.sharedInstance.unRetweet(params: ["id": originalTweetID!], success: { (tweet) -> () in
+      
+      print("Un-retweeting the Tweet")
+      self.retweetCountLabel.text = String(describing: tweet!.retweetCount!)
+      self.retweetStatus = false
+      self.loadRetweetLayout()
+
+    } , failure: { (error: Error) -> () in
+      print("Error: \(error.localizedDescription)")
+    })
+    
+    
+  }
+  
+  
+  // MARK: - LAYOUT FOR FAVORITES AND RETWEETS 
+  
+  func loadStatusLayout() {
+    
+    self.loadFavoriteLayout()
+    self.loadRetweetLayout()
+    
+  }
+  
+  func loadFavoriteLayout() {
+    
+    if favStatus! {
+      self.favCountLabel.textColor = UIColor.green
+    } else {
+      self.favCountLabel.textColor = UIColor.black
+    }
+  }
+  
+  func loadRetweetLayout() {
+    
+    if retweetStatus! {
+      self.retweetCountLabel.textColor = UIColor.green
+    } else {
+      self.retweetCountLabel.textColor = UIColor.black
+    }
+
+  }
+  
+  
+  
+  
+
 
   
   
