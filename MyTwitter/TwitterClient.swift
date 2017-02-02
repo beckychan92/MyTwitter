@@ -162,8 +162,26 @@ class TwitterClient: BDBOAuth1SessionManager {
         failure(error)
     })
   }
+  
+  func getOriginalTweet(params: NSNumber?, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+    
+    get("1.1/statuses/show/\(params!).json?include_my_retweet=1", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any) -> Void in
+      
+      // let full_tweet = get("https://api.twitter.com/1/1/statuses/show/" + originalTweetID + "json?include_my_retweet=1")
+      
+      let tweetDictionary = response as? NSDictionary
+      let tweet = Tweet(dictionary: tweetDictionary!)
+     
+      success(tweet)
+      
+//        let retweet_id = full_tweet.current_user_retweet.id_str
 
-  // https://api.twitter.com/1.1/statuses/unretweet/:id.json
+    }, failure: { (task: URLSessionDataTask?, error: Error) -> Void in
+      failure(error)
+      
+    })
+  }
+  
   
   
   func unRetweet(params: NSDictionary?, success: @escaping (_ tweet: Tweet?) -> (), failure: @escaping (Error) -> ()) {

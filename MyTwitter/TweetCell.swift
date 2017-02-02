@@ -25,7 +25,9 @@ class TweetCell: UITableViewCell {
   var tweetID: NSNumber?
   var originalTweetID: NSNumber?
   var favStatus: Bool?
-  var retweetStatus: Bool?
+  var myRetweetStatus: Bool?
+  var full_tweet: Tweet?
+  var retweet_ID: NSNumber?
   
   var tweet: Tweet! {
     
@@ -46,7 +48,7 @@ class TweetCell: UITableViewCell {
       screenNameLabel.text = ("@" + (tweet.user?.screenname!)!)
       
       favStatus = tweet.favorited!
-      retweetStatus = tweet.retweeted!
+      myRetweetStatus = tweet.retweeted!
       self.loadStatusLayout()
       
       if let profileUrl = tweet.user?.profileUrl {
@@ -125,7 +127,7 @@ class TweetCell: UITableViewCell {
     
     print("Clicked on Retweet")
     
-    if retweetStatus! {
+    if myRetweetStatus! {
       unRetweet()
     }
       
@@ -137,11 +139,27 @@ class TweetCell: UITableViewCell {
   
   func doRetweet() {
     
-    TwitterClient.sharedInstance.retweet(params: ["id": originalTweetID!], success: { (tweet) -> () in
+    print("Preparing for retweet")
+    
+    /*
+    if tweet.retweetedStatus == nil {
+      print("Retweeted Status is nil")
+      originalTweetID = tweet.idStr
+      print("Original tweet id: \(originalTweetID!)")
+    }
+      
+    else {
+      originalTweetID = tweet.retweetedStatus?.idStr
+      print("Original tweet id is from retweeted status: \(originalTweetID!)")
+      getRetweetID()
+    }
+ */
+    
+    TwitterClient.sharedInstance.retweet(params: ["id": tweetID!], success: { (tweet) -> () in
       
       print("Retweeting the Tweet")
       self.retweetCountLabel.text = String(describing: tweet!.retweetCount!)
-      self.retweetStatus = true
+      self.myRetweetStatus = true
       self.loadRetweetLayout()
 
     } , failure: { (error: Error) -> () in
@@ -152,19 +170,58 @@ class TweetCell: UITableViewCell {
   
   func unRetweet() {
     
-    TwitterClient.sharedInstance.unRetweet(params: ["id": originalTweetID!], success: { (tweet) -> () in
+    if !tweet.retweeted! {
+      print("tweet has not been retweeted")
+      return
+    }
+    
+    else {
+    
+      if tweet.retweetedStatus == nil {
+        originalTweetID = tweet.idStr
+      }
       
-      print("Un-retweeting the Tweet")
-      self.retweetCountLabel.text = String(describing: tweet!.retweetCount!)
-      self.retweetStatus = false
-      self.loadRetweetLayout()
+      else {
+        originalTweetID = tweet.retweetedStatus?.idStr
+        getRetweetID()
+      }
+      
+      
+      TwitterClient.sharedInstance.unRetweet(params: ["id": originalTweetID!], success: { (tweet) -> () in
+      
+        print("Un-retweeting the Tweet")
+        self.retweetCountLabel.text = String(describing: tweet!.retweetCount!)
+        self.myRetweetStatus = false
+        self.loadRetweetLayout()
 
+      } , failure: { (error: Error) -> () in
+        print("Error: \(error.localizedDescription)")
+    })
+      
+    }
+  }
+  
+  func getRetweetID() {
+    
+    TwitterClient.sharedInstance.getOriginalTweet(params: originalTweetID, success: { (tweet) -> () in
+      
+      print("getting retweetID")
+      self.retweet_ID = tweet.currentUserRetweet?["id_str"] as? NSNumber
+      self.originalTweetID = self.retweet_ID
+  
+      
     } , failure: { (error: Error) -> () in
-      print("Error: \(error.localizedDescription)")
+        print("Error: \(error.localizedDescription)")
+   
     })
     
-    
   }
+  
+    //    let full_tweet = get("https://api.twitter.com/1/1/statuses/show/" + originalTweetID + "json?include_my_retweet=1")
+    //   let retweet_id = full_tweet.current_user_retweet.id_str
+  
+  
+  
   
   
   // MARK: - LAYOUT FOR FAVORITES AND RETWEETS 
@@ -187,7 +244,7 @@ class TweetCell: UITableViewCell {
   
   func loadRetweetLayout() {
     
-    if retweetStatus! {
+    if myRetweetStatus! {
       self.retweetCountLabel.textColor = UIColor.green
     } else {
       self.retweetCountLabel.textColor = UIColor.black

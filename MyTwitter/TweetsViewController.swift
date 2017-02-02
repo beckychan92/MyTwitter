@@ -103,6 +103,19 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
       
       for tweet in tweets {
         print("tweet: \(tweet.text!)")
+        print("1. retweeted: \(tweet.retweeted!)")
+        print("2. favorited: \(tweet.favorited!)")
+        print("3. idStr: \(tweet.idStr!)")
+        print("4. id: \(tweet.id!)")
+        
+        if tweet.retweetedStatus != nil {
+          print("5. retweetedStatus:\(tweet.retweetedStatus!)")
+        }
+        
+        if tweet.currentUserRetweet != nil {
+          print("6. currentUserRetweet:\(tweet.currentUserRetweet!)")
+        }
+        
         self.tableView.reloadData()
       }
       
