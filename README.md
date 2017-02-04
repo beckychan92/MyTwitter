@@ -2,7 +2,7 @@
 
 **MyTwitter** is a basic twitter app to read and compose tweets the Twitter API(https://apps.twitter.com/).
 
-Time spent: **10** hours spent in total
+Time spent: **18** hours spent in total
 
 ## User Stories
 
@@ -22,7 +22,7 @@ The following **optional** features are implemented:
 
 The following **additional** features are implemented:
 
-- [ ] List anything else that you can get done to improve the app functionality!
+- [X] Implemended section header that displays date and time of tweet
 
 Please list two areas of the assignment you'd like to **discuss further with your peers** during the next class (examples include better ways to implement something, how to extend your app in certain ways, etc):
 
@@ -38,8 +38,8 @@ Here's a walkthrough of implemented user stories:
 GIF created with LiceCap (http://www.cockos.com/licecap/).
 
 ## Notes
+Challenges encountered while building the app: Unretweeting still not functioning properly
 
-Describe any challenges encountered while building the app.
 
 ## License
 
