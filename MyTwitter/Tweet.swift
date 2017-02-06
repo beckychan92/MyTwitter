@@ -18,8 +18,8 @@ class Tweet: NSObject {
   var favorited: Bool?
   var retweeted: Bool?
   var id: NSNumber?
-  var idStr: NSNumber? = 0
-  var retweetedStatus: Tweet?
+  var idStr: String?
+  var retweetedStatus: NSDictionary?
   var currentUserRetweet: NSDictionary?
   
   init(dictionary: NSDictionary){
@@ -38,16 +38,17 @@ class Tweet: NSObject {
       let formatter = DateFormatter()
       formatter.dateFormat = "EEE MMM d HH:mm:ss Z y"
       timestamp = formatter.date(from: timestampString)
-      
+    }
+    
     // id's for retweeting and creating favorite
     id = dictionary["id"] as? Int as NSNumber?
-    idStr = (dictionary["id_str"] as? Int as NSNumber?) ?? 0
-    currentUserRetweet = (dictionary["current_user_retweet"] as? NSDictionary)
-    
-    retweetedStatus = dictionary["retweeted_status"] as? Tweet
-      
+    idStr = dictionary["id_str"] as? String
+
+    retweetedStatus = dictionary["retweeted_status"] as? NSDictionary
+    currentUserRetweet = dictionary["current_user_retweet"] as? NSDictionary
+  
     }
-  }
+
   
   
   //MARK: - Convenience Methods

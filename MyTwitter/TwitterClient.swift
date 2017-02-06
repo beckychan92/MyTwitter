@@ -59,7 +59,6 @@ class TwitterClient: BDBOAuth1SessionManager {
         print("error: \(error?.localizedDescription)")
         self.loginFailure?(error!)
 
-   
     } )
   
     
@@ -77,12 +76,9 @@ class TwitterClient: BDBOAuth1SessionManager {
       success(tweets)
     
     }, failure: { (task: URLSessionDataTask?, error: Error) -> Void in
-       failure("error: \(error.localizedDescription)" as! Error)
+       failure(error)
     })
   }
-  
-  
-  
   
   
 
@@ -115,9 +111,10 @@ class TwitterClient: BDBOAuth1SessionManager {
     // getting the tweets
     post("1.1/favorites/create.json", parameters: params, progress: nil, success: { (task:  URLSessionDataTask, response: Any) -> Void in
       
-      let tweet = Tweet.tweetAsDictionary(response as! NSDictionary)
+      //api.twitter.com/1.1/favorites/create.json?id=243138128959913986
+      //\(params!).json
       
-      print("Favorite Count: \(tweet.favoritesCount!)")
+      let tweet = Tweet.tweetAsDictionary(response as! NSDictionary)
      
       success(tweet)
       
@@ -134,8 +131,6 @@ class TwitterClient: BDBOAuth1SessionManager {
     post("1.1/favorites/destroy.json", parameters: params, progress: nil, success: { (task:  URLSessionDataTask, response: Any) -> Void in
       
       let tweet = Tweet.tweetAsDictionary(response as! NSDictionary)
-      
-      print("Favorite Count: \(tweet.favoritesCount!)")
       
       success(tweet)
       
@@ -154,8 +149,6 @@ class TwitterClient: BDBOAuth1SessionManager {
       
       let tweet = Tweet.tweetAsDictionary(response as! NSDictionary)
       
-      print("Retweet Count: \(tweet.retweetCount!)")
-      
       success(tweet)
     
     }, failure: { (task: URLSessionDataTask?, error: Error) -> Void in
@@ -163,25 +156,23 @@ class TwitterClient: BDBOAuth1SessionManager {
     })
   }
   
-  func getOriginalTweet(params: NSNumber?, success: @escaping (Tweet) -> (), failure: @escaping (Error) -> ()) {
+  func getRetweetID(params: NSDictionary?, success: @escaping (_ tweet: Tweet?) -> (), failure: @escaping (Error) -> ()) {
     
-    get("1.1/statuses/show/\(params!).json?include_my_retweet=1", parameters: nil, progress: nil, success: { (task: URLSessionDataTask, response: Any) -> Void in
+    // getting the tweets
+    post("1.1/statuses/statuses/show/\(params!["id"]!).json?include_my_retweet=1", parameters: params, progress: nil, success: { (task:  URLSessionDataTask, response: Any) -> Void in
       
-      // let full_tweet = get("https://api.twitter.com/1/1/statuses/show/" + originalTweetID + "json?include_my_retweet=1")
+      let tweet = Tweet.tweetAsDictionary(response as! NSDictionary)
+      print("TWEET WITH ID: \(tweet)") 
       
-      let tweetDictionary = response as? NSDictionary
-      let tweet = Tweet(dictionary: tweetDictionary!)
-     
       success(tweet)
-      
-//        let retweet_id = full_tweet.current_user_retweet.id_str
 
+      
     }, failure: { (task: URLSessionDataTask?, error: Error) -> Void in
       failure(error)
-      
     })
   }
   
+ 
   
   
   func unRetweet(params: NSDictionary?, success: @escaping (_ tweet: Tweet?) -> (), failure: @escaping (Error) -> ()) {
@@ -190,8 +181,6 @@ class TwitterClient: BDBOAuth1SessionManager {
     post("1.1/statuses/unretweet/\(params!["id"]!).json", parameters: params, progress: nil, success: { (task:  URLSessionDataTask, response: Any) -> Void in
       
       let tweet = Tweet.tweetAsDictionary(response as! NSDictionary)
-      
-      print("Retweet Count: \(tweet.retweetCount!)")
       
       success(tweet)
       
