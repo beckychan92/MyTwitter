@@ -9,7 +9,7 @@
 import UIKit
 
 
-class TweetsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate {
+class TweetsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate, MyCustomCellDelegator {
   
   var tweets: [Tweet]?
   var tweetID: String?
@@ -18,8 +18,8 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
   var saveCountLabel: UILabel?
   var saveButton: UIButton?
   
-  let HeaderViewIdentifier = "TableViewHeaderView"
-  var headerView: UIView?
+  //let HeaderViewIdentifier = "TableViewHeaderView"
+  //var headerView: UIView?
 
   // infinite scrolling properties
   var isMoreDataLoading = false
@@ -56,13 +56,15 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
         self.refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
         self.tableView.insertSubview(refreshControl, at: 0)
   
-      
+        // Set up Notification for Segue 
+    //  NotificationCenter.default.addObserver(self, selector: #selector(goToProfileView), name: NSNotification.Name(rawValue: "ProfileView"), object: nil)
+  
         // Setting up tableview
         tableView.dataSource = self
         tableView.delegate = self
         tableView.estimatedRowHeight = 100
         tableView.rowHeight = UITableViewAutomaticDimension
-        tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: HeaderViewIdentifier)
+     //   tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: HeaderViewIdentifier)
     
         makeNetworkCall()
  
@@ -71,25 +73,28 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
 
   // MARK: - TableView Methods
   
-  func numberOfSections(in tableView: UITableView) -> Int {
-    return tweets?.count ?? 0
-  }
+  //func numberOfSections(in tableView: UITableView) -> Int {
+  //  return tweets?.count ?? 0
+ // }
   
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-   
-    return 1
+    return tweets?.count ?? 0
+    
+   // return 1
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     
     let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell", for: indexPath) as! TweetCell
-
+    
     cell.backgroundColor = UIColor(red:0.92, green:0.98, blue:0.99, alpha:1.0) // hex# ebfbfd // color for retweet and save
     cell.selectionStyle = .none
     
-    if let tweet = tweets?[indexPath.section] {
-      cell.tweet = tweet
-    }
+  //  cell.delegate = self - used this for segue
+    
+    let tweet = tweets?[indexPath.row]
+    cell.tweet = tweet
+    
     
     return cell
   }
@@ -102,7 +107,7 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
   
   
   
-  func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+ /* func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
   
     headerView = UIView(frame: CGRect(x:0, y:0, width: 320, height: 50))
     headerView?.backgroundColor = UIColor(red:0.36, green:0.72, blue:0.78, alpha:0.7)  // hex#5CB7C8 // color used for retweet
@@ -117,6 +122,7 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
       let label = addDateToHeader(date: date)
       headerView?.addSubview(label)
     }
+ */
     
     /*
     // add retweet button to header
@@ -143,16 +149,19 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
     }
  */
     
-    return headerView
-  }
+   // return headerView
+ // }
   
-  func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+ /* func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
  
     var height = tableView.sectionHeaderHeight
     height = 20
     
     return height
   }
+ */
+  
+  /*
   
   func addDateToHeader(date: Date) -> UILabel{
     
@@ -169,6 +178,9 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
     return label
  
   }
+ */
+  
+  /*
   
   func addRetweetButtonToHeader() -> UIButton {
     
@@ -227,6 +239,10 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
     return saveCountLabel!
 
   }
+ 
+ 
+ */
+  
   // MARK: - ScrollView & Refresh Control 
   
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -373,14 +389,92 @@ class TweetsViewController: UIViewController, UITableViewDataSource, UITableView
   
   
   
-    /*
+  
+  
     // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+  
+  @IBAction func onCompose(_ sender: UIBarButtonItem) {
+    print("Going to compose a tweet")
+    performSegue(withIdentifier: "Compose", sender: self)
+  }
+  
+  func callSegueFromCell(myData dataobject: User) {
+    
+    let profileVC = self.storyboard?.instantiateViewController(withIdentifier: "ProfileView") as! ProfileViewController
+    let userToSend = dataobject
+    profileVC.user = userToSend
+    self.navigationController?.pushViewController(profileVC, animated: true)
+  }
+  
+  
+  
+ //  func goToProfileView() {
+    
+   // self.performSegue(withIdentifier: "ProfileView", sender: dataobject)
+ // }
+  
+  
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    
+      print("prepare for segue called")
+      
+      if segue.identifier == "TweetDetail" {
+        
+
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell", for: indexPath) as! TweetCell
+  //      let tweet = tweets?[indexPath.row]
+    //    cell.tweet = tweet
+      
+        let cell = sender as! TweetCell
+      //  let indexPath = tableView.indexPath(for: cell)
+      //  let tweet = tweets?[(indexPath?.row)!]
+        
+        let sendingTweet = cell.tweet
+        
+        print("Tweet text: \(sendingTweet!.text!)")
+        
+        let detailVc = segue.destination as! TweetDetailsViewController
+        detailVc.tweet = sendingTweet
+        detailVc.tweets = tweets
+    
+      
+       /*
+        if segue.identifier == "ProfileView" {
+
+          let profileUser = sender as! User!
+          let profileVc = segue.destination as! ProfileViewController
+          profileVc.user = profileUser
+            
+        }
+ 
+ */
+         
+            //
+          
+         //  let cell = sender as! TweetCell
+        //  let sendingTweet = cell.tweet
+      
+          
+//          print("Tweet text: \(sendingTweet!.text!)")
+          
+       //   profileVc.tweets = tweets
+       //   profileVc.tweet.user = sendingTweet?.user
+          
+       // }
+        
+        if segue.identifier == "Compose" {
+          
+          let composeVc = segue.destination as! ComposeViewController
+          
+        }
+        
+        
+        
+      }
+      
     }
-    */
+
+
+  
 
   }

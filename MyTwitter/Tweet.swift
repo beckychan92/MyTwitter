@@ -40,6 +40,7 @@ class Tweet: NSObject {
       timestamp = formatter.date(from: timestampString)
     }
     
+    
     // id's for retweeting and creating favorite
     id = dictionary["id"] as? Int as NSNumber?
     idStr = dictionary["id_str"] as? String

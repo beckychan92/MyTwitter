@@ -48,9 +48,10 @@ class User: NSObject {
 
         if let userData = userData{
           
-          let dictionary = try! JSONSerialization.jsonObject(with: userData, options: .allowFragments)
+          if let dictionary = try? JSONSerialization.jsonObject(with: userData, options: .allowFragments){
           
-          _currentUser = User(dictionary: dictionary as! NSDictionary)
+            _currentUser = User(dictionary: dictionary as! NSDictionary)
+          }
         }
       }
       

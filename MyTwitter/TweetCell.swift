@@ -9,6 +9,10 @@
 import UIKit
 import AFNetworking
 
+protocol MyCustomCellDelegator {
+  func callSegueFromCell(myData dataobject: User)
+}
+
 
 class TweetCell: UITableViewCell {
   
@@ -22,6 +26,8 @@ class TweetCell: UITableViewCell {
   @IBOutlet weak var saveButton: UIButton!
   @IBOutlet weak var retweetButton: UIButton!
   
+  var delegate:MyCustomCellDelegator!
+  
   var favStatus: Bool?
   var favCount: Int?
   var retweetStatus: Bool?
@@ -29,20 +35,25 @@ class TweetCell: UITableViewCell {
   var originalTweetID: String?
   var retweetID: String?
   
+  var navigationController = UINavigationController()
+  
   var tweet: Tweet! {
     
     didSet {
       
       tweetTextLabel.text = tweet.text
   
-      
       nameLabel.text = tweet.user?.name!
       screenNameLabel.text = ("@" + (tweet.user?.screenname!)!)
       
       if let profileUrl = tweet.user?.profileUrl {
         profileImage.setImageWith(profileUrl)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(goToProfileView))
+        profileImage.addGestureRecognizer(tapGesture)
       }
 
+      // Codeblock for determining if tweet is a retweet or not
+      
       if let retweetedStatus = tweet.retweetedStatus {
         let retweet = Tweet.tweetAsDictionary(tweet.retweetedStatus!)
         originalTweetID = retweet.idStr
@@ -61,6 +72,9 @@ class TweetCell: UITableViewCell {
       favStatus = tweet.favorited!
       retweetStatus = tweet.retweeted!
   
+      
+      
+      
     }
   }
 
@@ -68,8 +82,11 @@ class TweetCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
       
-      profileImage.layer.cornerRadius = 3
+      
       profileImage.clipsToBounds = true
+      profileImage.layer.cornerRadius = 3
+      
+     
       
     }
 
@@ -244,13 +261,78 @@ class TweetCell: UITableViewCell {
       
     }
     
+  }
+  
+  func goToProfileView() {
+    print ("Going to profile view")
+    let user = tweet?.user
+    print("User: \(user!.name!)")
+    if(self.delegate != nil) {
+      self.delegate.callSegueFromCell(myData: user! as User)
+    }
+   
+  
+  }
+}
 
+
+
+
+ // func switchToProfile() {
+   // print("Going to profile view")
+    
+   /* let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+    let profileVC: ProfileViewController = storyboard.instantiateViewController(withIdentifier: "ProfileView") as! ProfileViewController
+   
+    let sendingTweet = tweet
+    print("Sending Tweet: \(tweet.text!)")
+    profileVC.tweet = sendingTweet
+    print("Profile User Tweet: \(profileVC.tweet.text!)")
+    profileVC.user = tweet.user
+    print("User: \(profileVC.user.name!)")
+  //  profileVC.nameLabel.text = profileVC.user.name!
+    
+   // NotificationCenter.default.post(Notification(name: Notification.Name(rawValue: "ProfileView"), object: sendingTweet) as Notification)
     
   }
   
-  }
+ 
   
   
   
   
+    
+ //   NotificationCenter.default.addObserver(self, selector: #selector(goToProfileView), name: NSNotification.Name(rawValue: "ProfileView"), object: nil)
+    
+  //  let segue = UIStoryboardSegue(identifier: "ProfileView", source: TweetsViewController, destination: ProfileViewController)
+    
+    
+//    let detailVc = segue.destination as! TweetDetailsViewController
+ //   detailVc.tweet = sendingTweet
+   // detailVc.tweets = tweets
+    
+    
+ //   let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+//    let profileVC: ProfileViewController = storyboard.instantiateViewController(withIdentifier: "ProfileView") as! ProfileViewController
+//    self.navigationController.pushViewController(profileVC, animated: true)
+    
+    
+   // self.navigationController.pushViewController(ProfileViewController, animated: true)
+    
+   // let currentPage = self.navigationController.visibleViewController?.restorationIdentifier!
+    
+    
+  //  let controller = self.storyboard!.instantiateViewController(withIdentifier: "Page5")
+   // let page5vc = controller as! StoryNodeViewController
+ //   navigationController?.pushViewController(page5vc, animated: true)
+
+   // let storyboard = UIStoryboard(name: "MyStoryboardName", bundle: nil)
+   // let controller = storyboard.instantiateViewController(withIdentifier: "ProfileView")
+   // navigationController.pushViewController(ProfileViewController, animated: true)
+ 
+   // navigationController?.pushViewController(page5vc, animated: true)
+//    self.present(controller, animated: true, completion: nil)
+
+*/
+
 
